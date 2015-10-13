@@ -2,17 +2,18 @@
 These settings are for production use ONLY.
 This template was provided by Microsoft VS for django projects. It has
 has been altered for our use.
+
 """
 
 
 from .base import * # imports our base class used accross
 
-# very important this flag is set to false when in production.
+# very important: this flag is set to false when in production.
 DEBUG = TEMPLATE_DEBUG = False
 
-# accepts any HTTP host
+# ONLY accept from trusted domain hosts.
 ALLOWED_HOSTS = (
-    '*',
+    'cryptostorage.azurewebsites.net',
 )
 
 ADMINS = (

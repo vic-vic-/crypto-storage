@@ -4,9 +4,9 @@
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <Name>CryptoStorage</Name>
     <RootNamespace>DjangoWebProject</RootNamespace>
-    <InterpreterId>{2bf7b59e-7941-491a-8cde-8c7120e67916}</InterpreterId>
+    <InterpreterId>{5025008c-0812-4d93-a753-c2900fda793d}</InterpreterId>
     <InterpreterVersion>2.7</InterpreterVersion>
-    <DjangoSettingsModule>$(MSBuildProjectName).settings.production</DjangoSettingsModule>
+    <DjangoSettingsModule>$(MSBuildProjectName).settings.local</DjangoSettingsModule>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -119,7 +119,7 @@
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="env\">
-      <Id>{2bf7b59e-7941-491a-8cde-8c7120e67916}</Id>
+      <Id>{5025008c-0812-4d93-a753-c2900fda793d}</Id>
       <BaseInterpreter>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</BaseInterpreter>
       <Version>2.7</Version>
       <Description>env (Python 2.7)</Description>

@@ -54,7 +54,10 @@
     <Folder Include="app\static\" />
     <Folder Include="app\static\app\" />
     <Folder Include="app\static\app\content\" />
+    <Folder Include="app\static\app\css\" />
+    <Folder Include="app\static\app\css\fonts\" />
     <Folder Include="app\static\app\fonts\" />
+    <Folder Include="app\static\app\images\" />
     <Folder Include="app\static\app\scripts\" />
     <Folder Include="app\templates\" />
     <Folder Include="app\templates\app\" />
@@ -62,6 +65,26 @@
     <Folder Include="CryptoStorage\settings\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app\static\app\css\animate-custom.css" />
+    <Content Include="app\static\app\css\demo.css" />
+    <Content Include="app\static\app\css\fonts\BebasNeue-webfont.eot" />
+    <Content Include="app\static\app\css\fonts\BebasNeue-webfont.svg" />
+    <Content Include="app\static\app\css\fonts\BebasNeue-webfont.ttf" />
+    <Content Include="app\static\app\css\fonts\BebasNeue-webfont.woff" />
+    <Content Include="app\static\app\css\fonts\Dharma Type Font License.txt" />
+    <Content Include="app\static\app\css\fonts\fontomas-webfont.eot" />
+    <Content Include="app\static\app\css\fonts\fontomas-webfont.svg" />
+    <Content Include="app\static\app\css\fonts\fontomas-webfont.ttf" />
+    <Content Include="app\static\app\css\fonts\fontomas-webfont.woff" />
+    <Content Include="app\static\app\css\fonts\franchise-bold-webfont.eot" />
+    <Content Include="app\static\app\css\fonts\franchise-bold-webfont.svg" />
+    <Content Include="app\static\app\css\fonts\franchise-bold-webfont.ttf" />
+    <Content Include="app\static\app\css\fonts\franchise-bold-webfont.woff" />
+    <Content Include="app\static\app\css\style.css" />
+    <Content Include="app\static\app\css\style2.css" />
+    <Content Include="app\static\app\css\style3.css" />
+    <Content Include="app\static\app\images\bg.jpg" />
+    <Content Include="app\static\app\images\ImageAttribution.txt" />
     <Content Include="requirements.txt" />
     <Content Include="app\static\app\content\bootstrap.css" />
     <Content Include="app\static\app\content\bootstrap.min.css" />

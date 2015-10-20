@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿
+{% load staticfiles %}
+<!DOCTYPE html>
 <!--[if lt IE 7 ]> <html lang="en" class="no-js ie6 lt8"> <![endif]-->
 <!--[if IE 7 ]>    <html lang="en" class="no-js ie7 lt8"> <![endif]-->
 <!--[if IE 8 ]>    <html lang="en" class="no-js ie8 lt8"> <![endif]-->
@@ -13,9 +15,9 @@
         <meta name="keywords" content="html5, css3, form, switch, animation, :target, pseudo-class" />
         <meta name="author" content="Codrops" />
         <link rel="shortcut icon" href="../favicon.ico"> 
-        <link rel="stylesheet" type="text/css" href="/static/app/css/demo.css" />
-        <link rel="stylesheet" type="text/css" href="/static/app/css/style.css" />
-		<link rel="stylesheet" type="text/css" href="/static/app/css/animate-custom.css" />
+        <link rel="stylesheet" type="text/css" href="{% static 'app/css/demo.css' %}"  />
+        <link rel="stylesheet" type="text/css" href= "{% static 'app/css/style.css' %}" />
+		<link rel="stylesheet" type="text/css" href="{% static 'app/css/animate-custom.css' %}"/>
     </head>
     <body>
         <div class="container">

@@ -16,10 +16,9 @@ from django.core.exceptions import ImproperlyConfigured
 #       of source control for security reasons.
 
 from os import path
-PROJECT_ROOT = path.dirname(path.abspath(path.dirname(__file__)))
+PROJECT_ROOT = path.dirname(path.dirname(path.abspath(path.dirname(__file__))))
 SECRET_FILE = path.join(path.dirname(path.dirname(path.dirname(
               path.abspath(path.dirname(__file__))))),"env.json")
-
 # to manipulate the json file for secret variables
 import json
 with open(SECRET_FILE) as sec_f:

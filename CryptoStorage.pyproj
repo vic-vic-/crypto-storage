@@ -6,7 +6,8 @@
     <RootNamespace>DjangoWebProject</RootNamespace>
     <InterpreterId>{5025008c-0812-4d93-a753-c2900fda793d}</InterpreterId>
     <InterpreterVersion>2.7</InterpreterVersion>
-    <DjangoSettingsModule>$(MSBuildProjectName).settings.local</DjangoSettingsModule>
+    <DjangoSettingsModule>$(MSBuildProjectName).settings.production</DjangoSettingsModule>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>

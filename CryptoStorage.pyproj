@@ -52,6 +52,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="app\" />
+    <Folder Include="docs\" />
+    <Folder Include="docs\content\" />
     <Folder Include="app\static\" />
     <Folder Include="app\static\app\" />
     <Folder Include="app\static\app\content\" />
@@ -66,6 +68,7 @@
     <Folder Include="CryptoStorage\settings\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="docs\content\diagram.png" />
     <Content Include="app\static\app\css\animate-custom.css" />
     <Content Include="app\static\app\css\demo.css" />
     <Content Include="app\static\app\css\fonts\BebasNeue-webfont.eot" />
@@ -86,6 +89,9 @@
     <Content Include="app\static\app\css\style3.css" />
     <Content Include="app\static\app\images\bg.jpg" />
     <Content Include="app\static\app\images\ImageAttribution.txt" />
+    <Content Include="docs\ProjectDiagram.md">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="requirements.txt" />
     <Content Include="app\static\app\content\bootstrap.css" />
     <Content Include="app\static\app\content\bootstrap.min.css" />

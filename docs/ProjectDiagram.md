@@ -20,5 +20,5 @@ Application Requirements:
  - The salt + the password will be the input for pbkdf2
 Run pbkdf2 many times to create the key
 
-[Diagram](https://github.com/vic-vic-/crypto-storage/tree/master/docs/content/diagram.jpg)
+[Diagram](https://github.com/vic-vic-/crypto-storage/blob/master/docs/content/diagram.JPG)
 

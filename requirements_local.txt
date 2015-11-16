@@ -1,4 +1,5 @@
-Django==1.8.4
+# inclue requirements.txt
+-r requirements.txt
+
 django-debug-toolbar==1.4
-mysql-python==1.2.5
-sqlparse==0.1.18
+

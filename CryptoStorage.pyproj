@@ -6,7 +6,7 @@
     <RootNamespace>DjangoWebProject</RootNamespace>
     <InterpreterId>{5025008c-0812-4d93-a753-c2900fda793d}</InterpreterId>
     <InterpreterVersion>2.7</InterpreterVersion>
-    <DjangoSettingsModule>$(MSBuildProjectName).settings.production</DjangoSettingsModule>
+    <DjangoSettingsModule>$(MSBuildProjectName).settings.local</DjangoSettingsModule>
     <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup>
@@ -32,8 +32,15 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="app\admin.py" />
+    <Compile Include="app\userauthbackend.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\forms.py" />
     <Compile Include="app\models.py" />
+    <Compile Include="app\passwordengine.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\tests.py" />
     <Compile Include="app\views.py" />
     <Compile Include="app\__init__.py" />
@@ -67,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app\static\app\css\animate-custom.css" />
+    <Content Include="app\static\app\css\main.css" />
     <Content Include="app\static\app\css\demo.css" />
     <Content Include="app\static\app\css\fonts\BebasNeue-webfont.eot" />
     <Content Include="app\static\app\css\fonts\BebasNeue-webfont.svg" />
@@ -82,10 +90,16 @@
     <Content Include="app\static\app\css\fonts\franchise-bold-webfont.ttf" />
     <Content Include="app\static\app\css\fonts\franchise-bold-webfont.woff" />
     <Content Include="app\static\app\css\style.css" />
-    <Content Include="app\static\app\css\style2.css" />
-    <Content Include="app\static\app\css\style3.css" />
     <Content Include="app\static\app\images\bg.jpg" />
     <Content Include="app\static\app\images\ImageAttribution.txt" />
+    <Content Include="app\static\app\scripts\cryptostorage.masterkey.js" />
+    <Content Include="app\templates\app\base.html" />
+    <Content Include="app\templates\app\logininvalid.html" />
+    <Content Include="app\templates\app\logoutuser.html" />
+    <Content Include="app\templates\app\usermain.html" />
+    <Content Include="app\templates\app\register.html" />
+    <Content Include="app\templates\app\loginverify.html" />
+    <Content Include="app\templates\app\loginuser.html" />
     <Content Include="requirements.txt" />
     <Content Include="app\static\app\content\bootstrap.css" />
     <Content Include="app\static\app\content\bootstrap.min.css" />
@@ -109,12 +123,9 @@
     <Content Include="app\static\app\scripts\respond.js" />
     <Content Include="app\static\app\scripts\respond.min.js" />
     <Content Include="app\static\app\scripts\_references.js" />
-    <Content Include="app\templates\app\about.html" />
-    <Content Include="app\templates\app\contact.html" />
     <Content Include="app\templates\app\index.html" />
-    <Content Include="app\templates\app\layout.html" />
-    <Content Include="app\templates\app\login.html" />
     <Content Include="app\templates\app\loginpartial.html" />
+    <Content Include="requirements_local.txt" />
     <Content Include="web.config" />
     <Content Include="web.debug.config" />
   </ItemGroup>

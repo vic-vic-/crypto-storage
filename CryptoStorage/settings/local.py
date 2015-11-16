@@ -2,13 +2,25 @@
 These settings are for local use ONLY.
 This template was provided by Microsoft VS for django projects. It has
 has been altered for our use.
+
+Important note: make sure that when you do a syncdb, you specify this 
+local settings when working on your local machine. If not, the admin
+site will not work. Execute:
+
+$python manage.py runserver --settings=CryptoStorage.settings.local
+
 """
 
 # imports our base class used accross
-from .base import * 
+from .base import *
+# from app import saltengine
 
 
-DEBUG = TEMPLATE_DEBUG = True
+# saltObj = saltengine.SaltEngine()
+DEBUG = True
+# removed due to v1.8 option in TEMPLATES
+#TEMPLATE_DEBUG =True
+
 
 ALLOWED_HOSTS = (
     'localhost',
@@ -83,13 +95,13 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-
+"""
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
 #     'django.template.loaders.eggs.Loader',
-)
+)"""
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -98,7 +110,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
 )
 
 ROOT_URLCONF = 'CryptoStorage.urls'
@@ -106,12 +119,32 @@ ROOT_URLCONF = 'CryptoStorage.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'CryptoStorage.wsgi.application'
 
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or
-    # "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
+# updated function due to new django version 1.8
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'debug' : True,
+            'context_processors': [
+                # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
+                # list if you haven't customized them:
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                #'django.template.context_processors.i18n',
+                #'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                #'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+            ],
+         },
+
+    },
+]
+
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -121,42 +154,20 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app',
-    'debug_toolbar',
+    #'debug_toolbar',
     # Uncomment the next line to enable the admin:
      'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
+    #'django.contrib.admindocs',
 )
 
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    }
-}
 
 # Specify the default test runner.
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
     
+AUTHENTICATION_BACKENDS = (
+    # custom authentication backend
+    'app.userauthbackend.UserAuthBackend',
+    # default authentication backend
+    'django.contrib.auth.backends.ModelBackend',
+)

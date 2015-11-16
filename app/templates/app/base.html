@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypto-Storage - {% block title %} {% endblock %}</title>
     {% load staticfiles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'app/content/main.css %}" />
+    <!--TODO <link rel="stylesheet" type="text/css" href="{ static 'app/content/main.css %}" />-->
 </head>
 
 <body>
 
 {% block content %}{% endblock %}
+    <div>
         <hr/>
         <footer>
             <p>&copy; {{ year }} - Crypto-Storage</p>

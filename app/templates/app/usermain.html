@@ -1,0 +1,21 @@
+{% extends "app/base.html" %}
+
+{% block content %}
+
+<h2>{{ title }}</h2>
+<!-- user's home page once logged in. -->
+<h1>Hello {{ user.first_name}}</h1>
+
+{# displays log out button for user. Must display the #}
+<form action ="{% url 'logout'%}" >
+    <input type="submit" value="Logout" />
+</form>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+    {% load staticfiles %}
+<!-- <script src="{ static 'app/scripts/jquery.validate.min.js' %}"></script>-->
+{% endblock %}

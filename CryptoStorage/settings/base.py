@@ -49,15 +49,14 @@ TIME_ZONE = 'America/Los_Angeles'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
+# we need a custom user model for our db.
+AUTH_USER_MODEL = 'app.RegisterUser'
+
 # Database used for our user data
 DATABASES = {
     'default': {
-        'ENGINE':   'django.db.backends.mysql',
-        'NAME':     sec_get("DJANGO_DBNAME"),
-        'USER':     sec_get("DJANGO_DBU"),
-        'PASSWORD': sec_get("DJANGO_DBP"),
-        'HOST':     sec_get("DJANGO_DBHOST"),
-        'PORT':     sec_get("DJANGO_DBPORT"),
+        'ENGINE':   'django.db.backends.sqlite3',
+        'NAME':     path.join(PROJECT_ROOT,'main.sqlite3'),
     }
 }
 

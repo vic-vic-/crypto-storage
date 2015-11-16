@@ -1,0 +1,10 @@
+<!-- This logoutuser.html serves as default logout page to 
+    notify the user of a successful log out. -->
+{% extends "app/base.html" %}
+
+{% block content %}
+
+<h2>{{ title }}</h2>
+<p><a href="{% url 'login' %}">Return to Login page.</a></p>
+
+{% endblock %}

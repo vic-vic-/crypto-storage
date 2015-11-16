@@ -3,9 +3,45 @@
 {% block content %}
 
 <h2>{{ title }}</h2>
+{% if form.errors %}
+    <p>Please fix the below fields.</p>
+    {% for errors in form.errors %}
+        {{ errors }}
+    {% endfor %}
+{% endif %}
 <!-- Add registration fields and interfaces with the django db -->
-{% endblock %}
+<!--TODO: Make registration fields for user registration. -->
+<form method="post" action="{% url 'login' %}">
+    <!--Tokenize for cross site request forgery -->
+{% csrf_token %}
+{# generates all the registration fields required for new users#}}
+<table>
+<tr> 
+    <td>{{ form.email.label }}</td>
+    <td>{{ form.email }}</td>
+</tr>
+<tr> 
+    <td>{{ form.first_name.label }}</td>
+    <td>{{ form.first_name }}</td>
+</tr>
+<tr> 
+    <td>{{ form.last_name.label }}</td>
+    <td>{{ form.last_name }}</td>
+</tr>
+<tr>
+    <td>{{ form.password1.label }}</td>
+    <td>{{ form.password1 }}</td>
+</tr>
+<tr>
+    <td>{{ form.password2.label }}</td>
+    <td>{{ form.password2 }}</td>
+</tr>
+</table>
 
+<input type="submit" value="Register" />
+<input type="hidden" name="next" value="{{next}}" />
+</form>
+{% endblock %}
 
 {% block scripts %}
 

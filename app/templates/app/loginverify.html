@@ -5,13 +5,24 @@
 <h2>{{ title }}</h2>
 <!-- content requires that the user at this point of time has acquired the salt
      from the server to compute the password hash -->
-{% endblock %}
 
+    <input type="text" name="password1" id="inputpass"></>
+
+    <!--TODO: for the salt get it from the server(assuming the user exists)
+              here we put a dummy 128 bit salt=au2s39opa820fi3l -->
+    <input type="button" value="GenerateHash" 
+           onclick="generatePWHash(document.getElementById('inputpass').value, 'au2s39opa820fi3l')"/>
+
+    <!-- displays hash on site for testing purposes -->
+    <p id="displayhash"></p>
+{% endblock %}
 
 {% block scripts %}
 
-    {% load staticfiles %}
-<!-- <script src="{ static 'app/scripts/jquery.validate.min.js' %}"></script>-->
-<!--<script src="{ static 'app/scripts/saltengine.cryptostorage.masterkey-0.0.1.js' %}"></script>-->
+{% load staticfiles %}
+
+{# to use crypto.js for hashing password on client side. #}
+<script src="{% static 'app/scripts/cryptostorage.masterkey.js' %}"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/pbkdf2.js"></script>
 
 {% endblock %}

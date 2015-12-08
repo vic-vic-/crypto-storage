@@ -2,15 +2,56 @@
 
 {% block content %}
 
+
 <h2>{{ title }}</h2>
 <!-- user's home page once logged in. -->
 <h1>Hello {{ user.first_name}}</h1>
 
 {# displays log out button for user. Must display the #}
+
+
+
+<input id="files" type="file" name="files[]"  multiple>
+ 
+ <output id="list"></output>
+
 <form action ="{% url 'logout'%}" >
     <input type="submit" value="Logout" />
 </form>
+{% load static %}
+<script src="{% static 'app/sjcl/sjcl.js' %}"></script>
+<script>
 
+
+            function handleFileSelect(evt) {
+                var file = evt.target.files[0]; // FileList object                    
+                    var reader = new FileReader();
+                    reader.onload = (function(theFile) {
+                        return function (e) {
+                          //  var result = e.target.result;
+                           
+                            console.log("crypting: " + reader.result);
+                            //var bytes = new Uint8Array(reader.result);
+                          //  var bits = toBitArrayCodec(bytes);
+                           // var base64bits = sjcl.codec.base64.fromBits(bits); // added
+                            var crypt = sjcl.encrypt("aaaaa", reader.result);
+                            console.log("encrypted: " + crypt);
+                            alert(crypt);
+                    
+                        };
+                    })(file);
+
+                // Read in the image file as a data URL.f
+                  reader.readAsBinaryString(file);
+                }
+            
+            
+
+            document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+
+
+        </script>
 {% endblock %}
 
 

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypto-Storage - {% block title %} {% endblock %}</title>
     {% load staticfiles %}
-    <!--TODO <link rel="stylesheet" type="text/css" href="{ static 'app/content/main.css %}" />-->
+    {# TODO <link rel="stylesheet" type="text/css" href="{ static 'app/content/main.css %}" /> #}
 </head>
 
 <body>
@@ -17,9 +17,7 @@
             <p>&copy; {{ year }} - Crypto-Storage</p>
         </footer>
     </div>
-
-    <!--<script src="{ static 'app/scripts/jquery-1.10.2.js' %}"></script>-->
-{% block scripts %}{% endblock %}
+    {% block scripts %}{% endblock %}
 
 </body>
 </html>

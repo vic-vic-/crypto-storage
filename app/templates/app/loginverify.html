@@ -3,26 +3,40 @@
 {% block content %}
 
 <h2>{{ title }}</h2>
-<!-- content requires that the user at this point of time has acquired the salt
-     from the server to compute the password hash -->
+{# content requires that the user at this point of time has acquired the salt from the server to compute the password hash #}
+{% if form.errors %}
+    <p>Invalid password. Please try again</p>
+{% endif %}
+<form method="post" action="{%url 'loginverify' %}">
+    {# Tokenize for cross site request forgery prevention #}
+    {% csrf_token %}
+    <table>
+        <tr>
+            {# the password field of the form #}
+            <td>{{ form.password.label }}</td>
+            <td>{{ form.password }}</td>
+        </tr>
+    </table>
+    
+    {# here we generate the hash based on the password input to send to the server. #}
+    <input type="submit" value="Login" 
+           onclick="generatePWHash_ASM(document.getElementById('id_password').value, '{{ salt }}')"/>
 
-    <input type="text" name="password1" id="inputpass"></>
-
-    <!--TODO: for the salt get it from the server(assuming the user exists)
-              here we put a dummy 128 bit salt=au2s39opa820fi3l -->
-    <input type="button" value="GenerateHash" 
-           onclick="generatePWHash(document.getElementById('inputpass').value, 'au2s39opa820fi3l')"/>
-
-    <!-- displays hash on site for testing purposes -->
-    <p id="displayhash"></p>
+    {# this variable contains the email passed by the html response #}
+    <input type="hidden" name="email" value="{{ email }}" />
+    <input type="hidden" name="hash" id="hash" value="" />
+</form>
 {% endblock %}
 
 {% block scripts %}
 
 {% load staticfiles %}
 
-{# to use crypto.js for hashing password on client side. #}
-<script src="{% static 'app/scripts/cryptostorage.masterkey.js' %}"></script>
-<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/pbkdf2.js"></script>
+    {# to use crypto.js for hashing password on client side. #}
+    <script src="{% static 'app/scripts/cryptostorage.masterkey.js' %}"></script>
+    <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/pbkdf2.js"></script>
+    <script src="{% static 'app/scripts/sjcl.js' %}"></script>
+    {# crypto library I found to be slightly better in performance than sjcl and crypto.js #}
+    <script src={% static 'app/scripts/asmcrypto.js' %}></script>
 
 {% endblock %}

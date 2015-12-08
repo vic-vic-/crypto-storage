@@ -3,6 +3,9 @@ Form definitions for utilizing them when calling them from
 the html templates.
 """
 
+# import our own authentication
+from app.userauthbackend import UserAuthBackend
+
 from django import forms
 from app.models import RegisterUser
 from django.contrib.auth.forms import (AuthenticationForm, 
@@ -23,14 +26,32 @@ class RegisterUserAuthenticationForm(AuthenticationForm):
         #model = RegisterUser
         fields = ['email', 'password']
 
-    def confirm_login_allowed(self, user):
-        """ checks if user can be allowed to log in"""
-        # if the user has been disabled due to incorrect
-        # password retries or other.
-        if not user.is_active:
-            raise forms.ValidationError("The account has been disabled. "+
-                "Please contact customer service.")    
-        return True                  
+    def authenticate(self,request):
+        """ check validation of user authentication """
+
+        # fetch data from the post
+        email = request.POST['email']
+        generated_hash = request.POST['hash']
+        data_returned = {'user': None, 'error':''}
+        # our custom authentication
+        authbackend = UserAuthBackend()
+        user = authbackend.get_user(email)
+        if user is not None:
+            if authbackend.confirm_login_allowed(user):
+                if authbackend.authenticate_hash(email=email,generatedHash=generated_hash):
+                    # authenticated successfully.
+                    data_returned['user'] = user
+                else:
+                    data_returned['error'] = 'The user and password do not match'
+            else:
+                data_returned['error'] =  'The user is locked for security reasons. ' \
+                            'Please contact customer service.'
+
+        else:
+            data_returned['error'] =  'The user and password do not match'
+        return data_returned
+
+              
 
 class RegisterUserForm(UserCreationForm):
     """ The registration form used for new users. """

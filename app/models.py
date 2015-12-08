@@ -12,6 +12,7 @@ from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser
 )
 
+
 class RegisterManager(BaseUserManager) :
     """
     This class manages the user since we need to take care of
@@ -31,10 +32,9 @@ class RegisterManager(BaseUserManager) :
             email=self.normalize_email(email),
             first_name = first_name,
             last_name = last_name,
-            #password = password,
         )
 
-
+        
         user.set_password(password)
         # no admin priviliges
         user.is_admin = False
@@ -42,6 +42,18 @@ class RegisterManager(BaseUserManager) :
         user.is_active = True
         #user.is_superuser = False
         user.save(using = self._db)
+        
+        # imported inside function to prevent cyclic import
+        from .userauthbackend import UserAuthBackend
+        # since user exists we can get the salt
+        # doing authentication for salt usage
+        salt_get = UserAuthBackend()
+        salt = salt_get.get_password_element(email,'salt')
+       
+        # lets store email and salt in the availability salt table
+        salt_repo = SaltRepo(email=email, salt=salt)
+        salt_repo.save()
+
         return user
 
     def create_superuser(self, email, first_name, last_name, password):
@@ -67,10 +79,11 @@ class RegisterUser(AbstractBaseUser):
                                     primary_key=True, 
                                     unique=True, 
                                     db_index=True)
-    first_name  = models.CharField(max_length=60, null=False, blank=False)
-    last_name   = models.CharField(max_length=60, null=False, blank=False)
-    date_joined = models.DateTimeField(auto_now_add=True, auto_now=False)
-    date_update = models.DateTimeField(auto_now_add=False, auto_now=True)
+    first_name     = models.CharField(max_length=60, null=False, blank=False)
+    last_name      = models.CharField(max_length=60, null=False, blank=False)
+    date_joined    = models.DateTimeField(auto_now_add=True, auto_now=False)
+    date_update    = models.DateTimeField(auto_now_add=False, auto_now=True)
+    login_attempts = models.IntegerField(default=0,null=False, blank=False)
 
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
@@ -130,3 +143,16 @@ class PassUser(models.Model):
 
     def __unicode__(self):
         return self.user
+
+class SaltRepo(models.Model):
+    """ 
+    Salt table for availability of salts. Registered and unregistered users
+    """
+    email       = models.EmailField(max_length=200, 
+                                    primary_key=True, 
+                                    unique=True, 
+                                    db_index=True)
+    salt = models.CharField(max_length=16,null=False, blank=False)
+
+    def __unicode__(self):
+        return self.email

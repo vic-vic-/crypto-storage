@@ -75,6 +75,8 @@
     <Folder Include="CryptoStorage\settings\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app\static\app\scripts\asmcrypto.js" />
+    <Content Include="app\static\app\scripts\sjcl.js" />
     <Content Include="docs\content\diagram.png" />
     <Content Include="app\static\app\css\animate-custom.css" />
     <Content Include="app\static\app\css\main.css" />

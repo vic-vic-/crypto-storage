@@ -9,16 +9,17 @@ database.
 from os import urandom
 import django.contrib.auth
 from random import randint
-
-# import for accessing db
-import app.models as db
+from .models import RegisterUser, SaltRepo
+from django.contrib.auth import hashers
 
 class PasswordEngine(object):
-    """Password Manager to help create, get, and maintain unique passwords in DB
-       for registered or new users."""
+    """
+    This class is used for password management. It creates a salt for new users,
+    gets salt from register users, and helps maintain a unique salt in the
+    database.
+    """
 
-    # TODO: Finish implementation 
-    def create_salt(self):
+    def create_salt(self, email):
         """ 
         Creates salt for use when hashing password for user.
         Stores it in a table to avoid reuse. 
@@ -26,86 +27,80 @@ class PasswordEngine(object):
         returns a random 128 bit salt.
         """
         # attempt max 10 tries for generating salt if we hit the
-        # same salt in the file
+        # same salt in the repo
         tries = 10
         salt = ""
         valid = False
-        
+        # determine if the user exists in the repo then return salt
+        user = self._get_user(email)
+        if user is not None:
+            return user.salt
+
         while tries > 0:
-            salt = calculate_salt()
+            salt = self._calculate_salt()
             
-            # check the file if salt exists, if not, save it into file.
-            if(check_salt_infile("saltTable.txt",salt) == False):
-                if(insert_salt_infile("saltTable.txt",salt)):
+            # check the repo if salt exists, if not, save it into repo.
+            if(self._check_salt_repo(salt) == False):
+                if(self._insert_salt_repo(email=email, salt=salt)):
                     valid = True
                     break
             tries -= 1
         return salt
-        # check if the salt exists
-        # check if the salt exists in a file
-        # saltFile = open("salt_table.txt", "rw+")
-        # for line in saltFile.readlines():
-            #if( salt == line)
             
     def _calculate_salt(self):
         """
-        Formulates the 128 bit salt
+        Formulates the 128 bit salt using django's default pbkdf2 salt generator
 
         returns the salt.
         """
-        # we will pick a random number from 2^0 to 2^10 for iterations
-        counter = randint(1,1024)
-        salt = ""
-        
-        # perforom calculation of salt.
-        for i in range(0, counter):
-            # random 128 bits for salt usage
-            salt = urandom(16)
-        return salt
+        # use the internal django api to generate salt
+        saltgen = hashers.BasePasswordHasher()
+        return saltgen.salt()
 
-    def _check_salt_infile(self,file,salt):
+    def _get_user(self,email):
+        """
+        Check if the user exists in this repo
+        """
+
+        user = SaltRepo.objects.get(email=email)
+        if user is not None:
+            return user
+        else:
+            return False
+            
+
+    def _check_salt_repo(self,salt):
         """ 
-        Checks the salt file if the salt exists. This helps prevent
+        Checks the salt repo if the salt exists. This helps prevent
         reuse of the salt for users.
 
-        returns true if 'salt' was found from 'file'.
+        returns true if 'salt' was found from 'repo'.
         """
         foundSalt = False
         try:
-            # open file with only read
-            saltFile = open(file,"r")
-            for line in saltFile.readlines():
-                if (salt == line):
-                    foundSalt = True
-            saltFile.close()
+            # check to see if salt exists
+            salt_repo = SaltRepo.objects.get(salt=salt)
+            if salt_repo is not None:
+                foundSalt = True
         except:
-            raise ValueError("An error occured checking salt from file table.")
+            return foundSalt
             
         return foundSalt
 
-    def __insert_salt_infile(db,salt):
+    def _insert_salt_repo(self, email,salt):
         """ 
-        Inserts the salt into the file.
-        returns true if 'salt' was found from 'file'.
+        Inserts the salt into the repo.
+
+        returns true if 'salt' was found from 'repo'.
         """
         insertSuccess = False
         try:
-            # if(file==None | salt == None):
-                # raise ValueError("Invalid file or salt parameter")
-            # open file with only read
-            saltFile = open(db,"rw+")
-            saltFile.write(salt + "\r\n")
-            saltFile.close()
+            salt_repo = SaltRepo(email=email, salt=salt)
+            salt_repo.save()
             insertSuccess = True
         except:
-            raise ValueError('An error occured inserting salt to file table.')
+            return insertSuccess
         return insertSuccess
 
-    def get_hash(self, username) :
-        """
-        Gets the hash value from the specified user. 
-
-        returns hash of user.
-        """
         
-        pass
+

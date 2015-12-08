@@ -20,6 +20,7 @@
 </form>
 {% load static %}
 <script src="{% static 'app/sjcl/sjcl.js' %}"></script>
+<script src="{% static 'app/sjcl/core/sha256.js' %}"></script>
 <script>
 
 
@@ -33,10 +34,22 @@
                             console.log("crypting: " + reader.result);
                             //var bytes = new Uint8Array(reader.result);
                           //  var bits = toBitArrayCodec(bytes);
-                           // var base64bits = sjcl.codec.base64.fromBits(bits); // added
+                            // var base64bits = sjcl.codec.base64.fromBits(bits); // added
+
+
+                            //emcrypt with the password: aaaaa
                             var crypt = sjcl.encrypt("aaaaa", reader.result);
-                            console.log("encrypted: " + crypt);
+                            console.log("encrypted: " + reader.result);
                             alert(crypt);
+
+                            //out put the hash
+                            var out = sjcl.hash.sha256.hash(reader.result);
+                            var hash = sjcl.codec.hex.fromBits(out);
+                            alert("sha256: " + hash);
+
+                            //decrypt
+                            var decrypt = sjcl.decrypt("aaaaa", crypt);
+                            alert("descrypted: " + decrypt);
                     
                         };
                     })(file);

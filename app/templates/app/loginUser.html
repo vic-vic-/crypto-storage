@@ -1,40 +1,32 @@
-<!-- This loginuser.html will serve to provide a user with -->
 {% extends "app/base.html" %}
-
+{# This loginuser.html will serve to provide a user with #}
 {% block content %}
 
 <h2>{{ title }}</h2>
 
 {% if form.errors %}
-<p>Invalid email or password. Please try again</p>
+<p>Invalid email. Please try again</p>
 {% endif %}
 
-{% if next %}
-    {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-    {% else %}
-    <p>CryptoStorage Login Page.</p>
-    {% endif %}
+{% if error %}
+<ul class="errorlist">
+    <li>{{ error }}</li>
+</ul>
 {% endif %}
 
 <form method="post" action="{% url 'login' %}">
-    <!--Tokenize for cross site request forgery -->
-{% csrf_token %}
-<table>
-<tr> 
-    <td>{{ form.email.label }}</td>
-    <td>{{ form.email }}</td>
-</tr>
-<tr>
-    <!--TODO: must move the password to loginverify.html -->
-    <td>{{ form.password.label }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
+    {# Tokenize for cross site request forgery prevention #}
+    {% csrf_token %}
+    <table>
+    <tr> 
+        <td>{{ form.email.label }}</td>
+        <td>{{ form.email }}</td>
+    </tr>
+    </table>
 
-<input type="submit" value="Login" />
-<input type="hidden" name="next" value="{{next}}" />
+    <input type="submit" value="Login" />
+    <input type="hidden" name="next" value="{{next}}" />
+      
 </form>
 {# calls register from URLconf #}
 <p><a href="{% url 'register' %}">New User? Register!</a></p>

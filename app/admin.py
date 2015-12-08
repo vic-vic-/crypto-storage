@@ -6,7 +6,7 @@ site.
 # import the administration class and our custom models
 # for management.
 from django.contrib import admin
-from .models import RegisterUser, File, PassUser
+from .models import RegisterUser, File, PassUser, SaltRepo
 
 # These are classes defined in our models module (see models.py)
 # The admin to this site has total control over these tables 
@@ -30,3 +30,9 @@ class PassUserAdmin(admin.ModelAdmin):
         model = PassUser
 
 admin.site.register(PassUser, PassUserAdmin)
+
+class SaltRepoAdmin(admin.ModelAdmin):
+    class Meta:
+        model = SaltRepo
+
+admin.site.register(SaltRepo, SaltRepoAdmin)

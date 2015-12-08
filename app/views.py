@@ -25,23 +25,29 @@ def loginuser(request):
     # we log out the user for security reasons.
     logout(request)
     # override the form object with our custom one
-    authForm = RegisterUserAuthenticationForm()
     authbackend = UserAuthBackend()
+    authForm = RegisterUserAuthenticationForm()
     # the user has submitted the form.
     if request.method == 'POST':
         email = request.POST['email']
         # verify if user is valid
         user = authbackend.get_user(email)
-        if user is not None:
-            if authbackend.authenticate(email,password=request.POST['password']) is not None:
-                if authForm.confirm_login_allowed(user):
-                    login(request,user)
-                    # takes us to the user's home page
-                    return redirect('/')
-
-    # TODO: need to render the loginVerify
-    #       so the server can send the salt for computing
-    #       the password on client side.
+        userSalt = authbackend.get_user_salt(email)
+        if userSalt != '':
+            return render(
+                request,
+                'app/loginverify.html',
+                context_instance = RequestContext(request,
+                {
+                    # pass all required variables to the login verify form
+                    'title':'Enter your Password.',
+                    'form': authForm,
+                    # for the copyright note in the footer
+                    'year': date.today().year,
+                    'salt'  : userSalt,
+                    'email' : email
+                })
+            )
     return render(
         request,
         'app/loginuser.html',
@@ -64,6 +70,69 @@ def loginverify(request):
 
     # ensure that the request is valid, otherwise raise
     assert isinstance(request, HttpRequest)
+    
+    # create the authentication form object
+    authForm = RegisterUserAuthenticationForm(request.POST or None)
+    # initialize fields for form
+    userSalt = ''
+    email = ''
+    error = ''
+    if request.method == 'POST':
+        valid_form = authForm.is_valid()
+        auth_valid = authForm.authenticate(request)
+        # populate fields for form usage
+        email = request.POST['email']
+        authbackend = UserAuthBackend()
+        userSalt = authbackend.get_user_salt(email)
+     
+        # check if all authentication is ok
+        # display form errors if necessary
+        #user = authForm.authenticate(request)
+        #user = authbackend.get_user(email)
+        error = auth_valid['error']
+        if auth_valid['error'] == '' or auth_valid['user'] is not None:
+                # the generated hash from the client
+                #generatedHash = request.POST['hash']
+
+                # check if user is able to login (locked out)
+                # if authbackend.confirm_login_allowed(user):
+                    # authenticate the client hash to the server's hash
+                    # if authbackend.authenticate_hash(email,generatedHash):
+            
+                #user = authbackend.get_user(email)
+                login(request,auth_valid['user'])
+                # takes us to the user's home page
+                return redirect('/')
+        else:
+            return render(
+                request,
+                'app/loginuser.html',
+                context_instance = RequestContext(request,
+                {
+                    'title':'Welcome To CryptoStorage. Please Log In',
+                    'error': error,
+                    # override the value of form
+                    'form': authForm,
+                    # for the copyright note in the footer
+                    'year': date.today().year
+                })
+            )
+    else:
+        return render(
+            request,
+            'app/loginuser.html',
+            context_instance = RequestContext(request,
+            {
+                'title':'Welcome To CryptoStorage. Please Log In',
+                'error': error,
+                # override the value of form
+                'form': authForm,
+                # for the copyright note in the footer
+                'year': date.today().year
+            })
+        )
+
+
     return render(
         request, 
         "app/loginverify.html",
@@ -71,7 +140,10 @@ def loginverify(request):
         {
             'title':'Enter your Password.',
              # for the copyright note in the footer
-            'year': date.today().year
+            'year': date.today().year,
+            'salt'  : userSalt,
+            'email' : email,
+             'form': authForm
         })
      )
 

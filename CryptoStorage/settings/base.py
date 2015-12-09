@@ -52,6 +52,9 @@ LANGUAGE_CODE = 'en-us'
 # we need a custom user model for our db.
 AUTH_USER_MODEL = 'app.RegisterUser'
 
+# for user profiles
+AUTH_PROFILE_MODULE = 'app.RegisterUserProfile'
+
 # Database used for our user data
 DATABASES = {
     'default': {
@@ -62,5 +65,7 @@ DATABASES = {
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = sec_get("DJANGO_SKEY")
+
+
 
 

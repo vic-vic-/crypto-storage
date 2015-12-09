@@ -7,13 +7,18 @@ from app.userauthbackend import UserAuthBackend
 # other necessary dependencies.
 from django import forms
 from django.shortcuts import render, redirect
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.template import RequestContext
 from django.contrib.auth import login, logout
 from app.userauthbackend import UserAuthBackend
 from app.forms import RegisterUserAuthenticationForm, RegisterUserForm
+from app.models import File
 from django.contrib.auth.decorators import login_required
 from datetime import date
+from os import path
+import json
+# encdoing for sending file
+from django.utils.encoding import smart_str
 
 def loginuser(request):
 
@@ -77,6 +82,7 @@ def loginverify(request):
     userSalt = ''
     email = ''
     error = ''
+    file_security_properties = ''
     if request.method == 'POST':
         valid_form = authForm.is_valid()
         auth_valid = authForm.authenticate(request)
@@ -87,22 +93,26 @@ def loginverify(request):
      
         # check if all authentication is ok
         # display form errors if necessary
-        #user = authForm.authenticate(request)
-        #user = authbackend.get_user(email)
         error = auth_valid['error']
-        if auth_valid['error'] == '' or auth_valid['user'] is not None:
-                # the generated hash from the client
-                #generatedHash = request.POST['hash']
 
-                # check if user is able to login (locked out)
-                # if authbackend.confirm_login_allowed(user):
-                    # authenticate the client hash to the server's hash
-                    # if authbackend.authenticate_hash(email,generatedHash):
-            
-                #user = authbackend.get_user(email)
-                login(request,auth_valid['user'])
-                # takes us to the user's home page
-                return redirect('/')
+        # get the file_propeties used for encrypting files
+        file_security_properties = request.POST['file_security_properties']
+
+        # authenticate if any error or user was not found
+        if auth_valid['error'] == '' or auth_valid['user'] is not None:
+            login(request,auth_valid['user'])
+            return render(
+                request, 
+                "app/usermain.html",
+                context_instance = RequestContext(request,
+                {
+                    'title':'Home CryptoStorage',
+                    'file_security_properties': file_security_properties,
+                    'user': request.user,
+                    # for the copyright note in the footer
+                    'year': date.today().year
+                    })
+                )
         else:
             return render(
                 request,
@@ -147,7 +157,7 @@ def loginverify(request):
         })
      )
 
-# logs out the user
+
 def logoutuser(request):
     """ logs out the user """
     # ensure that the request is valid, otherwise raise
@@ -165,9 +175,12 @@ def logoutuser(request):
          })
         )
 
-# this is the home page of the user once logged in
+
 @login_required
 def home(request):
+    """
+    this is the home page of the user once logged in
+    """
     return render(
         request, 
         "app/usermain.html",
@@ -179,8 +192,11 @@ def home(request):
          })
         )
 
-# registration form for new users
+
 def register(request):
+    """
+    registration form for new users
+    """
     return render(
         request, 
         "app/register.html",
@@ -192,4 +208,95 @@ def register(request):
             'year': date.today().year
          })
         )
+
+@login_required
+def file_process(request):
+    """
+    processes the file cipher text and details
+    to store in the database/user directory
+    """
+
+    if request.method == 'POST':
+        # flag to return if everything was ok
+        success = False
+        ## obtain all fields from post if available
+        file_command = request.POST['file_command']
+
+
+
+        # check what operation we need to perform
+        if file_command == 'set':
+            # get the file security properties to store them in server
+            file_security_properties = request.POST['file_security_properties']
+
+            # parse the received data salt$file_name
+            fsp_parsed = file_security_properties.split('$')
+            # get encrypted file data
+            encrypted_data = request.POST['file_data']
+        
+            # encrypted settings from file encryption
+            encrypt_settings = request.POST['encrypt_settings']
+            # create file object from file model
+            file_object_exists, file_object_new = File.objects.get_or_create(
+                            file_name=fsp_parsed[1]
+                            )
+            # insert the updated fields accordingly
+            if file_object_exists:
+                file_object_exists.file_salt=fsp_parsed[0]
+                file_object_exists.file_hmac=encrypt_settings
+                file_object_exists.user=request.user
+                file_object_exists.save()
+            else:
+                file_object_new.file_salt=fsp_parsed[0]
+                file_object_new.file_hmac=encrypt_settings
+                file_object_new.user=request.user
+                file_object_new.save()
+
+            # remove the file ext
+            file_name_no_ext = path.splitext(fsp_parsed[1])[0]
+
+            # create the file and write the encrypted info (read and write)
+            # store the file in the server
+            file_create = open(file_name_no_ext,'w+')
+            file_create.write(encrypted_data)
+
+            # save file properties to the database
+            file_create.close()
+            server_response = json.dumps({ 'response': 'OK', 'file_name': fsp_parsed[1]})
+            # return the file name to the user
+            return HttpResponse(server_response, content_type="application/json")
+
+        elif file_command == 'get':
+            # get file data for the user
+                       
+            # remove the file ext
+            file_name = request.POST['file_name']
+            file_name_no_ext = path.splitext(file_name)[0]
+            # get the encrypt_settings and salt based on file
+            file_get = File.objects.get(file_name=file_name, user=request.user)
+            encrypt_settings = file_get.file_hmac
+            file_salt = file_get.file_salt
+
+            # read the encrypted data
+            file_get = open(file_name_no_ext,'r')
+            # read the encrypted data
+            encrypted_data = file_get.read()
+            file_get.close()
+
+            # compose the message to send
+            # TODO: incorporate file download option
+            # to client location
+            server_response = json.dumps({ 
+                                            'response': 'OK', 
+                                            'encrypt_settings': encrypt_settings,
+                                            'file_salt': file_salt,
+                                            'encrypted_data': encrypted_data
+                                        })
+            # return the file name to the user
+            return HttpResponse(server_response, content_type="application/json")
+
+        else:
+            # was not able to get the command. Respond with server error
+            return HttpResponse("SERVER ERROR",content_type="text/plain")
+
 

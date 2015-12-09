@@ -5,71 +5,240 @@
 
 <h2>{{ title }}</h2>
 <!-- user's home page once logged in. -->
-<h1>Hello {{ user.first_name}}</h1>
+<h1>Hello {{ user.first_name }}</h1>
 
 {# displays log out button for user. Must display the #}
 
 
+<br />
+{# handles the processing of file #}
+<h1>Upload Encrypted File</h1>
+{# <form method="post" action ="{% url 'file_process' %}" > #}
+{# note: we return false when there is any form of submission to disable page refresh #}
+<form onsubmit="return false;" >
+    {# Tokenize for cross site request forgery prevention #}
+    {% csrf_token %}
 
-<input id="files" type="file" name="files[]"  multiple>
- 
- <output id="list"></output>
+    {# file upload fields#}
+    <input id="files" type="file" name="files[]"  multiple>
+    <output id="list"></output>
 
+    <input type="button" value="Upload" onclick="upload_request()" />
+
+    {# this is to hold the name and salt of the file #}
+    <input type="hidden" id="file_security_properties" name="file_security_properties" />
+
+    {# this is to hold the encrypted data aes ccm block cipher #}
+    <input type="hidden" id="file_data" name="file_data" />
+
+    {# this is to hold the encrypting properties used later for decrypting the file #}
+    <input type="hidden" id="encrypt_settings" name="encrypt_settings" />
+
+    <input type="hidden" id="file_command" name="file_command" value="set"/>
+
+</form>
+
+
+
+<br />
+
+
+<p>-----------------------------------------------------------------</p>
+
+<h1>Download Encrypted File</h1>
+
+<br />
+{# handles the file download #}
+{# note: we return false when there is any form of submission to disable page refresh #}
+<form onsubmit="return false;" >
+    {# Tokenize for cross site request forgery prevention #}
+    {% csrf_token %}
+
+    <select name="file_server" id="file_server">
+        <option id="file0"></option>
+    </select>
+    <input type="button" value="Download" id="download_btn" onclick="download_request();"/>
+    <div id="download_status" ></div>
+    <br />
+    <p>Decrypt the file by inputting password and clicking decrypt.</p>
+    <input type="password" id="decrypt_password" placeholder="Enter Password" />
+    <input type="hidden" id="encrypt_settings_server" />
+    <input type="hidden" id="file_salt_server" />
+    <input type="hidden" id="encrypted_data_server" />
+    <input type="button" value="Decrypt File" id="decrypt_file_btn" onclick="decrypt_file();" />
+</form>
+<br />
+<br />
+
+
+{# handles the form for logging out user #}
 <form action ="{% url 'logout'%}" >
     <input type="submit" value="Logout" />
 </form>
-{% load static %}
-<script src="{% static 'app/sjcl/sjcl.js' %}"></script>
-<script src="{% static 'app/sjcl/core/sha256.js' %}"></script>
+
+
 <script>
 
+    // performs an async upload file to the server
+    // does not refresh the page
+    function upload_request(){
+        $.ajax({
+            type: "POST",
+            url: '{% url "file_process" %}',
+            datatype: 'json',
+            async: true,
+            data:{
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                file_security_properties: $('#file_security_properties').val(),
+                file_data: $('#file_data').val(),
+                encrypt_settings: $('#encrypt_settings').val(),
+                file_command: $('#file_command').val()
+            },
+            success: function(json) {
+                $('#file0').html(json.file_name);
+            },
+            error: function(){
+                alert("An error occured while uploading the file.");
+            }
+        });
+    }
 
-            function handleFileSelect(evt) {
-                var file = evt.target.files[0]; // FileList object                    
-                    var reader = new FileReader();
-                    reader.onload = (function(theFile) {
-                        return function (e) {
-                          //  var result = e.target.result;
+    // the function event handler that handles when a file has been selected.
+    function handleFileSelect(evt) {
+        var file = evt.target.files[0]; // FileList object                    
+        var reader = new FileReader();
+        reader.onload = (function(theFile) {
+            return function (e) {
+                try{
+                //  var result = e.target.result;
                            
-                            console.log("crypting: " + reader.result);
-                            //var bytes = new Uint8Array(reader.result);
-                          //  var bits = toBitArrayCodec(bytes);
-                            // var base64bits = sjcl.codec.base64.fromBits(bits); // added
+                //console.log("crypting: " + reader.result);
 
+                // obtain the master key (file hash)
+                // from file_security_properties variable
+                // of the request
+                var master_key = hasherExtract("{{ file_security_properties }}", "hash")
+                //console.log("masterKey_encrypt= "+master_key)
+                // encrypt with the password hashed using 
+                // user password @ login with a newly generated salt!
+                // note: fileHash != userPasswordHash
+                var encrypt_out = sjcl.encrypt(master_key, reader.result);
+                var encrypt_json = JSON.parse(encrypt_out);
+                // prepare to send encryption settings to the server
+                var encrypt_server = encryptForServer(encrypt_out);
+                document.getElementById("encrypt_settings").value = encrypt_server 
 
-                            //emcrypt with the password: aaaaa
-                            var crypt = sjcl.encrypt("aaaaa", reader.result);
-                            console.log("encrypted: " + reader.result);
-                            alert(crypt);
-
-                            //out put the hash
-                            var out = sjcl.hash.sha256.hash(reader.result);
-                            var hash = sjcl.codec.hex.fromBits(out);
-                            alert("sha256: " + hash);
-
-                            //decrypt
-                            var decrypt = sjcl.decrypt("aaaaa", crypt);
-                            alert("descrypted: " + decrypt);
-                    
-                        };
-                    })(file);
-
-                // Read in the image file as a data URL.f
-                  reader.readAsBinaryString(file);
-                }
-            
-            
-
-            document.getElementById('files').addEventListener('change', handleFileSelect, false);
+                // prepare to send encrypted data data to the server                        
+                document.getElementById("file_data").value = encrypt_json.ct;                
+                
+                // append filename to file properties to send as "salt$file_name"
+                var salt = hasherExtract("{{ file_security_properties }}", "salt")
+                //console.log("salt_for_hashing_master=" +salt)
+                document.getElementById("file_security_properties").value = salt + "$" + theFile.name;
 
 
 
-        </script>
+                // parse the encrypted json data and get the hash
+               // var encrypt_parse = JSON.parse(encrypt);
+                //var encrypt = sjcl.codec.base64.fromBits(encrypt)
+
+
+                // console.log("encrypted: " + encrypt_json.ct);
+                
+                // console.log(encrypt);
+                            
+                // decrypt done in the download of the file(FOR TESTING ONLY)
+                // gets encrypt settings string from server and appends it with master_key
+                // to decrypt the file
+                // var encrypt_for_decrypt = encryptForDecrypt(encrypt_server, document.getElementById("file_data").value)
+                // console.log(encrypt_for_decrypt);
+                // var decrypt = sjcl.decrypt(master_key, encrypt_for_decrypt)
+                // console.log("decrypted:" + decrypt);
+                 }
+            catch(err){
+                alert("An Error Occurred while attempting to handle the file.")
+            }   
+            };
+        })(file);
+
+        // Read in the image file as a data URL.f
+        reader.readAsBinaryString(file);
+    }
+
+    // download the encrypted file from the server based on the selection of the form
+    function download_request()
+    {
+        // an asynchronous post request to get the file from the server
+        // note we need to pass the csrf_token if not django will reject
+        // the request, per security reasons
+        $.ajax({
+            type: "POST",
+            url: '{% url "file_process" %}',
+            async: true,
+            data:{
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                file_command: 'get',
+                file_name: $('#file0').val()
+            },
+            success: function(server_response) {
+                
+                // console.log(server_response)
+                // load the file encrypt settings for use
+                document.getElementById("encrypt_settings_server").value = server_response.encrypt_settings;
+                // load the salt used for creating master key for decrypting file
+                document.getElementById("file_salt_server").value = server_response.file_salt;
+                document.getElementById("encrypted_data_server").value = server_response.encrypted_data;
+                                                            
+                $('#download_status').html('Download Completed Successfully');
+            },
+            error: function() {
+                $('#download_status').html('Download Failed. Please try again.');
+            }
+         });
+    }
+    
+    // decrypts the file using the master password provided
+    // as well as performing the master password recreation based on salt 
+    // received from the server
+    function decrypt_file(){
+
+            try{
+                var enc_json = document.getElementById("encrypt_settings_server").value;
+                var enc_data = document.getElementById("encrypted_data_server").value;
+                enc_json = encryptForDecrypt(enc_json, enc_data);
+                // now compose the master key based on password inputted.
+                var dec_pass = document.getElementById("decrypt_password").value;
+                // erase password not needed anymore
+                document.getElementById("decrypt_password").value = "";
+                var f_salt = document.getElementById("file_salt_server").value;
+                var file_master_key = generatePWHash_ASM(dec_pass, f_salt);
+                    //console.log("masterKey_encrypt= "+file_master_key)
+                //console.log("salt_for_hashing_master=" +f_salt)
+                //console.log(enc_json);
+                var dec = sjcl.decrypt(file_master_key,enc_json);
+                
+                console.log("Decrypted File from Server:" + dec);
+            }
+            catch(err){
+                alert("An error occurred while attempting to decrypt. Possibly wrong password.");
+            }
+     }
+    // create the event handler for selecting files     
+    document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+</script>
+
 {% endblock %}
-
 
 {% block scripts %}
 
-    {% load staticfiles %}
-<!-- <script src="{ static 'app/scripts/jquery.validate.min.js' %}"></script>-->
+{% load staticfiles %}
+
+    {# to use crypto.js for hashing password on client side. #}
+    <script src="{% static 'app/scripts/cryptostorage.masterkey.js' %}"></script>
+    <script src="{% static 'app/scripts/sjcl.js' %}"></script>
+    {# crypto library I found to be slightly better in performance than sjcl and crypto.js #}
+    <script src={% static 'app/scripts/asmcrypto.js' %}></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
 {% endblock %}

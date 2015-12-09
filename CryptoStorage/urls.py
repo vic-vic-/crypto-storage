@@ -38,6 +38,9 @@ urlpatterns = patterns('',
         #    'template_name': 'app/logoutuser.html',
         #},
         name='logout'),
+    # request for processing the file to the server and getting
+    # file from the server
+    url(r'^file_process/$', 'app.views.file_process', name='file_process'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

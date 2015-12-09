@@ -39,6 +39,7 @@ class UserAuthBackend(object):
             if generatedHash == dbHash:
                 # reset the login attempts if successful
                 user.login_attempts = 0
+                user.save()
                 return True
             else:
                 # increment the attempts being used for authenticating this 

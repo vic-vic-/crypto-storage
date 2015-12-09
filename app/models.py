@@ -127,8 +127,9 @@ class RegisterUser(AbstractBaseUser):
 
 class File(models.Model):
     """ The File table to contain all information of user's files """
-    file_name  = models.CharField(max_length=200, null=False, blank=False)
-    file_hash  = models.CharField(max_length=32, null=False, blank=False)
+    file_name  = models.CharField(max_length=200, null=False, blank=False, primary_key=True)
+    file_hmac  = models.CharField(max_length=200, null=False, blank=False)
+    file_salt  = models.CharField(max_length=16, null=False, blank=False)
     date_added = models.DateTimeField(auto_now_add=True, auto_now=False)
     user = models.ForeignKey(RegisterUser)
 
@@ -156,3 +157,8 @@ class SaltRepo(models.Model):
 
     def __unicode__(self):
         return self.email
+
+class RegisterUserProfile(models.Model):
+    """Creates profiles for the users"""
+    user = models.ForeignKey(RegisterUser)
+    url = models.URLField('profile', blank=True)

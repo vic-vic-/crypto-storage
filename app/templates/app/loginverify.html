@@ -19,12 +19,15 @@
     </table>
     
     {# here we generate the hash based on the password input to send to the server. #}
+    {# we also pre-compute the hashes that will be used for encrypting the file#}
     <input type="submit" value="Login" 
-           onclick="generatePWHash_ASM(document.getElementById('id_password').value, '{{ salt }}')"/>
+           onclick="generatePWHash_ASM(document.getElementById('id_password').value, '{{ salt }}','hash'); generateFileHashes(document.getElementById('id_password').value);"/>
 
     {# this variable contains the email passed by the html response #}
     <input type="hidden" name="email" value="{{ email }}" />
     <input type="hidden" name="hash" id="hash" value="" />
+    {# to store the temporary master key to encrypt the file #}
+    <input type="hidden" name="file_security_properties" id="file_security_properties" value="" />
 </form>
 {% endblock %}
 
@@ -34,9 +37,9 @@
 
     {# to use crypto.js for hashing password on client side. #}
     <script src="{% static 'app/scripts/cryptostorage.masterkey.js' %}"></script>
-    <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/pbkdf2.js"></script>
     <script src="{% static 'app/scripts/sjcl.js' %}"></script>
     {# crypto library I found to be slightly better in performance than sjcl and crypto.js #}
     <script src={% static 'app/scripts/asmcrypto.js' %}></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
 {% endblock %}

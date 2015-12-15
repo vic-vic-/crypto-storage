@@ -10,8 +10,8 @@ function generatePWHash(password, salt,elementId)
     // for the hexadecimal representation which account for 2 hex values per character.
     // This function is per crypto.js
     var hashedPassword = CryptoJS.PBKDF2(password, salt, { keySize: 256 / 32, iterations: 5000 });
-    // passes to page
-    document.getElementById(elementId).value = hashedPassword;
+    // store password in local storage
+    localStorage.setItem(elementId, hashedPassword);
     
     return hashedPassword;
 }
@@ -27,8 +27,10 @@ function generatePWHash_ASM(password, salt, elementId)
     var dklen = 32;
     var hashedPassword = asmCrypto.PBKDF2_HMAC_SHA256.base64(password, salt, iterations, dklen);
     // passes to page if required
-    if (elementId != null)
+    if (elementId != null) {
         document.getElementById(elementId).value = hashedPassword;
+    }
+        
     return hashedPassword
 }
 
@@ -51,8 +53,8 @@ function generateFileHashes(password) {
     // pbkdf2 key for encrypting the file
     // type$iterations$salt$hash
     var file_security_properties = "pbkdf2_sha256$" + iterations + "$" + salt + "$" + hash
-    // passes to page
-    document.getElementById("file_security_properties").value = file_security_properties;
+    // store master key details in local storage
+    localStorage.setItem("file_security_properties", file_security_properties);
 
 }
 
@@ -109,6 +111,7 @@ function encryptForDecrypt(encrypt_for_server_object, file_encrypt) {
         "ct":     file_encrypt})
     
 }
+
 
 
 

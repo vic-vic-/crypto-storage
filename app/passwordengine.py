@@ -61,12 +61,14 @@ class PasswordEngine(object):
         """
         Check if the user exists in this repo
         """
-
-        user = SaltRepo.objects.get(email=email)
-        if user is not None:
-            return user
-        else:
-            return False
+        try:
+            user = SaltRepo.objects.get(email=email)
+            if user is not None:
+                return user
+            else:
+                return None
+        except:
+            return None
             
 
     def _check_salt_repo(self,salt):

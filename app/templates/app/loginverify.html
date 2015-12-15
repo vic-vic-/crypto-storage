@@ -25,9 +25,8 @@
 
     {# this variable contains the email passed by the html response #}
     <input type="hidden" name="email" value="{{ email }}" />
+    {# the password hash #}
     <input type="hidden" name="hash" id="hash" value="" />
-    {# to store the temporary master key to encrypt the file #}
-    <input type="hidden" name="file_security_properties" id="file_security_properties" value="" />
 </form>
 {% endblock %}
 

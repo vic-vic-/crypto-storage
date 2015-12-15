@@ -95,9 +95,6 @@ def loginverify(request):
         # display form errors if necessary
         error = auth_valid['error']
 
-        # get the file_propeties used for encrypting files
-        file_security_properties = request.POST['file_security_properties']
-
         # authenticate if any error or user was not found
         if auth_valid['error'] == '' or auth_valid['user'] is not None:
             login(request,auth_valid['user'])
@@ -107,7 +104,6 @@ def loginverify(request):
                 context_instance = RequestContext(request,
                 {
                     'title':'Home CryptoStorage',
-                    'file_security_properties': file_security_properties,
                     'user': request.user,
                     # for the copyright note in the footer
                     'year': date.today().year

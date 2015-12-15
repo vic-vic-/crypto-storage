@@ -117,8 +117,9 @@
                 // obtain the master key (file hash)
                 // from file_security_properties variable
                 // of the request
-                var master_key = hasherExtract("{{ file_security_properties }}", "hash")
-                //console.log("masterKey_encrypt= "+master_key)
+                // retrieve master key from local storage
+                var master_key = hasherExtract(localStorage.getItem("file_security_properties"), "hash");
+                // console.log("masterKey_encrypt= "+master_key)
                 // encrypt with the password hashed using 
                 // user password @ login with a newly generated salt!
                 // note: fileHash != userPasswordHash
@@ -132,28 +133,10 @@
                 document.getElementById("file_data").value = encrypt_json.ct;                
                 
                 // append filename to file properties to send as "salt$file_name"
-                var salt = hasherExtract("{{ file_security_properties }}", "salt")
+                var salt = hasherExtract(localStorage.getItem("file_security_properties"), "salt")
                 //console.log("salt_for_hashing_master=" +salt)
+                // get it on form to send to the server
                 document.getElementById("file_security_properties").value = salt + "$" + theFile.name;
-
-
-
-                // parse the encrypted json data and get the hash
-               // var encrypt_parse = JSON.parse(encrypt);
-                //var encrypt = sjcl.codec.base64.fromBits(encrypt)
-
-
-                // console.log("encrypted: " + encrypt_json.ct);
-                
-                // console.log(encrypt);
-                            
-                // decrypt done in the download of the file(FOR TESTING ONLY)
-                // gets encrypt settings string from server and appends it with master_key
-                // to decrypt the file
-                // var encrypt_for_decrypt = encryptForDecrypt(encrypt_server, document.getElementById("file_data").value)
-                // console.log(encrypt_for_decrypt);
-                // var decrypt = sjcl.decrypt(master_key, encrypt_for_decrypt)
-                // console.log("decrypted:" + decrypt);
                  }
             catch(err){
                 alert("An Error Occurred while attempting to handle the file.")
@@ -217,7 +200,8 @@
                 //console.log(enc_json);
                 var dec = sjcl.decrypt(file_master_key,enc_json);
                 
-                console.log("Decrypted File from Server:" + dec);
+                // shows the decrypted file for reference on console
+               // console.log("Decrypted File from Server:" + dec);
             }
             catch(err){
                 alert("An error occurred while attempting to decrypt. Possibly wrong password.");

@@ -37,3 +37,14 @@ $RECYCLE.BIN/
 .DS_Store
 .vs/config/applicationhost.config
 .vs/
+
+
+# donot commit datastore
+main.sqlite3
+
+#
+
+tmp/*
+!tmp/.blank
+.idea
+.vscode/*

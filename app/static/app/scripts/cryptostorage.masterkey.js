@@ -9,7 +9,7 @@ function generatePWHash(password, salt,elementId)
     // key size of 256 bits. Note the keysize is 256 /32 since we need to account
     // for the hexadecimal representation which account for 2 hex values per character.
     // This function is per crypto.js
-    var hashedPassword = CryptoJS.PBKDF2(password, salt, { keySize: 256 / 32, iterations: 5000 });
+    var hashedPassword = CryptoJS.PBKDF2(password, salt, { keySize: 256 / 32, iterations: 180000 });
     // store password in local storage
     localStorage.setItem(elementId, hashedPassword);
     
@@ -23,7 +23,7 @@ function generatePWHash_ASM(password, salt, elementId)
 {
     // this creates a password hash using PBKDF2 SHA256 with 20,000 iterations
     // with the 128 bit salt that server sends per the user
-    var iterations = 20000;
+    var iterations = 180000;
     var dklen = 32;
     var hashedPassword = asmCrypto.PBKDF2_HMAC_SHA256.base64(password, salt, iterations, dklen);
     // passes to page if required
@@ -39,7 +39,7 @@ function generatePWHash_ASM(password, salt, elementId)
 function generateFileHashes(password) {
     // this creates a password hash using PBKDF2 SHA256 with 20,000 iterations
     // with the 128 bit salt that server sends per the user
-    var iterations = 20000;
+    var iterations = 180000;
     var dklen = 32;
     // lets generate a secured 128 bit salt
     // using sjcl pseudo random number generator

@@ -16,6 +16,7 @@ from app.models import File
 from django.contrib.auth.decorators import login_required
 from datetime import date
 from os import path
+from django.conf import settings
 import json
 # encdoing for sending file
 from django.utils.encoding import smart_str
@@ -42,7 +43,7 @@ def loginuser(request):
             return render(
                 request,
                 'app/loginverify.html',
-                context_instance = RequestContext(request,
+                context = 
                 {
                     # pass all required variables to the login verify form
                     'title':'Enter your Password.',
@@ -51,19 +52,19 @@ def loginuser(request):
                     'year': date.today().year,
                     'salt'  : userSalt,
                     'email' : email
-                })
+                }
             )
     return render(
         request,
         'app/loginuser.html',
-        context_instance = RequestContext(request,
+        context = 
         {
             'title':'Welcome To CryptoStorage. Please Log In',
             # override the value of form
             'form': authForm,
             # for the copyright note in the footer
             'year': date.today().year
-        })
+        }
     )
 
 
@@ -101,19 +102,19 @@ def loginverify(request):
             return render(
                 request, 
                 "app/usermain.html",
-                context_instance = RequestContext(request,
+                context = 
                 {
                     'title':'Home CryptoStorage',
                     'user': request.user,
                     # for the copyright note in the footer
                     'year': date.today().year
-                    })
+                    }
                 )
         else:
             return render(
                 request,
                 'app/loginuser.html',
-                context_instance = RequestContext(request,
+                context = 
                 {
                     'title':'Welcome To CryptoStorage. Please Log In',
                     'error': error,
@@ -121,13 +122,13 @@ def loginverify(request):
                     'form': authForm,
                     # for the copyright note in the footer
                     'year': date.today().year
-                })
+                }
             )
     else:
         return render(
             request,
             'app/loginuser.html',
-            context_instance = RequestContext(request,
+            context = 
             {
                 'title':'Welcome To CryptoStorage. Please Log In',
                 'error': error,
@@ -135,14 +136,14 @@ def loginverify(request):
                 'form': authForm,
                 # for the copyright note in the footer
                 'year': date.today().year
-            })
+            }
         )
 
 
     return render(
         request, 
         "app/loginverify.html",
-         context_instance = RequestContext(request,
+         context = 
         {
             'title':'Enter your Password.',
              # for the copyright note in the footer
@@ -150,7 +151,7 @@ def loginverify(request):
             'salt'  : userSalt,
             'email' : email,
              'form': authForm
-        })
+        }
      )
 
 
@@ -163,12 +164,12 @@ def logoutuser(request):
     return render(
         request, 
         "app/logoutuser.html",
-        context_instance = RequestContext(request,
+        context = 
         {
             'title':'You have successfully logged off.',
             # for the copyright note in the footer
             'year': date.today().year
-         })
+         }
         )
 
 
@@ -180,12 +181,12 @@ def home(request):
     return render(
         request, 
         "app/usermain.html",
-        context_instance = RequestContext(request,
+        context = 
         {
             'title':'Home CryptoStorage',
             # for the copyright note in the footer
             'year': date.today().year
-         })
+         }
         )
 
 
@@ -193,16 +194,39 @@ def register(request):
     """
     registration form for new users
     """
+    if request.method == 'POST':
+        #TODO do more request checking
+        email = request.POST['email']
+        # verify if user is valid
+        form = RegisterUserForm(request.POST)
+        # create the authentication form object
+        authForm = RegisterUserAuthenticationForm(request.POST or None)
+        valid = form.is_valid()
+        if form.is_valid():
+            form.save()
+            return render(
+                request,
+                'app/loginuser.html',
+                context = 
+                {
+                    'title':'Welcome To CryptoStorage. Please Log In',
+                    'message': 'Registration successful',
+                    # override the value of form
+                    'form': authForm,
+                    # for the copyright note in the footer
+                    'year': date.today().year
+                }
+            )
     return render(
         request, 
         "app/register.html",
-        context_instance = RequestContext(request,
+        context =
         {
             'title':'Registration Form.',
             'form': RegisterUserForm(),
             # for the copyright note in the footer
             'year': date.today().year
-         })
+         }
         )
 
 @login_required
@@ -233,9 +257,17 @@ def file_process(request):
             # encrypted settings from file encryption
             encrypt_settings = request.POST['encrypt_settings']
             # create file object from file model
-            file_object_exists, file_object_new = File.objects.get_or_create(
-                            file_name=fsp_parsed[1]
-                            )
+            file_object_exists = ""
+            try:
+
+                file_object_exists = File.objects.get(
+                                file_name=fsp_parsed[1],
+                                user=request.user
+                                )
+            except:
+                print("Error file doesn't exist.")
+                pass
+            
             # insert the updated fields accordingly
             if file_object_exists:
                 file_object_exists.file_salt=fsp_parsed[0]
@@ -243,17 +275,19 @@ def file_process(request):
                 file_object_exists.user=request.user
                 file_object_exists.save()
             else:
-                file_object_new.file_salt=fsp_parsed[0]
-                file_object_new.file_hmac=encrypt_settings
-                file_object_new.user=request.user
-                file_object_new.save()
-
+                File.objects.create(
+                                file_name=fsp_parsed[1],
+                                file_salt=fsp_parsed[0],
+                                file_hmac=encrypt_settings,
+                                user=request.user
+                                )
             # remove the file ext
             file_name_no_ext = path.splitext(fsp_parsed[1])[0]
 
             # create the file and write the encrypted info (read and write)
             # store the file in the server
-            file_create = open(file_name_no_ext,'w+')
+            full_filename_path = path.join(settings.PROJECT_ROOT,path.join("tmp",file_name_no_ext))
+            file_create = open(full_filename_path,'w+')
             file_create.write(encrypted_data)
 
             # save file properties to the database
@@ -274,7 +308,8 @@ def file_process(request):
             file_salt = file_get.file_salt
 
             # read the encrypted data
-            file_get = open(file_name_no_ext,'r')
+            full_filename_path = path.join(settings.PROJECT_ROOT,path.join("tmp",file_name_no_ext))
+            file_get = open(full_filename_path,'r')
             # read the encrypted data
             encrypted_data = file_get.read()
             file_get.close()

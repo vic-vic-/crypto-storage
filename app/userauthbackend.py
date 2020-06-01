@@ -4,7 +4,7 @@ for security reasons.
 """
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import check_password
+from django.contrib.auth.hashers import check_password
 from .models import RegisterUser
 from .passwordengine import *
 
@@ -97,7 +97,7 @@ class UserAuthBackend(object):
         returns the desired password's element value
         """
         # variable to store the element's value
-        elementValue = '';
+        elementValue = ''
         try:
             user = RegisterUser.objects.get(email=email)
             # lets check if user exists

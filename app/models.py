@@ -131,7 +131,10 @@ class File(models.Model):
     file_hmac  = models.CharField(max_length=200, null=False, blank=False)
     file_salt  = models.CharField(max_length=16, null=False, blank=False)
     date_added = models.DateTimeField(auto_now_add=True, auto_now=False)
-    user = models.ForeignKey(RegisterUser)
+    user = models.ForeignKey(
+        RegisterUser, 
+        on_delete=models.DO_NOTHING
+    )
 
     def __unicode__(self):
         return self.file_name
@@ -140,7 +143,10 @@ class PassUser(models.Model):
     """ Password Table of users """
     pass_hash = models.CharField(max_length=64,null=False, blank=False)
     pass_salt = models.CharField(max_length=16,null=False, blank=False)
-    user = models.OneToOneField(RegisterUser)
+    user = models.OneToOneField(
+        RegisterUser,
+        on_delete=models.DO_NOTHING
+    )
 
     def __unicode__(self):
         return self.user
@@ -160,5 +166,8 @@ class SaltRepo(models.Model):
 
 class RegisterUserProfile(models.Model):
     """Creates profiles for the users"""
-    user = models.ForeignKey(RegisterUser)
+    user = models.ForeignKey(
+        RegisterUser,
+        on_delete=models.DO_NOTHING
+        )
     url = models.URLField('profile', blank=True)

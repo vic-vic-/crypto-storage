@@ -11,10 +11,10 @@
 {% endif %}
 <!-- Add registration fields and interfaces with the django db -->
 <!--TODO: Make registration fields for user registration. -->
-<form method="post" action="{% url 'login' %}">
+<form method="post" action="{% url 'register' %}">
     <!--Tokenize for cross site request forgery -->
 {% csrf_token %}
-{# generates all the registration fields required for new users#}}
+{# generates all the registration fields required for new users#}
 <table>
 <tr> 
     <td>{{ form.email.label }}</td>
@@ -39,13 +39,15 @@
 </table>
 
 <input type="submit" value="Register" />
+{% if next %}
 <input type="hidden" name="next" value="{{next}}" />
+{% endif %}
 </form>
 {% endblock %}
 
 {% block scripts %}
 
-    {% load staticfiles %}
+    {% load static %}
 <!-- <script src="{ static 'app/scripts/jquery.validate.min.js' %}"></script>-->
 <!--<script src="{ static 'app/scripts/saltengine.cryptostorage.masterkey-0.0.1.js' %}"></script>-->
 

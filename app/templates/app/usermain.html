@@ -199,9 +199,9 @@
                 //console.log("salt_for_hashing_master=" +f_salt)
                 //console.log(enc_json);
                 var dec = sjcl.decrypt(file_master_key,enc_json);
-                
+                alert("decrypt successful. See console.log() for details.")
                 // shows the decrypted file for reference on console
-               // console.log("Decrypted File from Server:" + dec);
+               console.log("Decrypted File from Server:" + dec);
             }
             catch(err){
                 alert("An error occurred while attempting to decrypt. Possibly wrong password.");
@@ -216,7 +216,7 @@
 
 {% block scripts %}
 
-{% load staticfiles %}
+{% load static %}
 
     {# to use crypto.js for hashing password on client side. #}
     <script src="{% static 'app/scripts/cryptostorage.masterkey.js' %}"></script>

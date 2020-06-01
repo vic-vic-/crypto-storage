@@ -105,6 +105,13 @@ Change into the virtualenv folder (env)
 source env/bin/activate
 ```
 
+And install the python requirements
+```shell
+python3 -m pip install -r requirements_local.txt
+```
+Note: Note requirements_local.txt includes all of the requirements.txt packages
+in addition to the Django's debug tool.
+
 3.Perform database migrations. Note that for development purposes,
 We are using sqlite. For production use, you should use a relational database.
 

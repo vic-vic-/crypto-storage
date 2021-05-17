@@ -1,5 +1,5 @@
 # include requirements.txt
 -r requirements.txt
 
-django-debug-toolbar==2.2
+django-debug-toolbar==2.2.1
 
